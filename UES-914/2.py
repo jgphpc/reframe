@@ -37,9 +37,11 @@ class MPI_PostprocTest(rfm.RunOnlyRegressionTest):
         for test in self.testnames:
             self.depends_on(test)
 
-
     @rfm.require_deps
     def collect_logs(self):
-        self.postrun_cmds = ['echo "%s" "%s"' % (os.path.join(self.testnames[0]().stagedir), self.testnames)]
-        # self.postrun_cmds = ['echo "%s" "%s"' % (os.path.join(compute_1steps().stagedir), self.testnames)]
-        # self.testnames => ['compute_1steps', 'compute_2steps']
+        for test_index in range(len(self.testnames)):
+            stagedir = self.getdep(self.testnames[test_index]).stagedir
+            job_out = '*_job.out'
+            postrun_cmd = 'echo "%s/%s"' % (stagedir, job_out)
+            self.postrun_cmds.append(postrun_cmd)
+            #also_ok: postrun_cmd = 'echo "../%s/*_job.out"' % self.testnames[test_index]
