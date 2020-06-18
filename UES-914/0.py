@@ -12,12 +12,15 @@ class TestBase(rfm.RunOnlyRegressionTest):
         self.executable = 'echo 1 step=%s' % myarg1
         self.sanity_patterns = sn.all([sn.assert_found('1', self.stdout)])
 
-@rfm.parameterized_test(*[[steps]
-                          for steps in [1, 2]
+
+steps = [1, 2]
+@rfm.parameterized_test(*[[step]
+                          for step in steps
                           ])
 class MPI_ComputeTest(TestBase):
-    def __init__(self, steps):
-        super().__init__(steps)
+    def __init__(self, step):
+        super().__init__(step)
+
 
 @rfm.simple_test
 class MPI_PostprocTest(rfm.RunOnlyRegressionTest):
@@ -27,9 +30,12 @@ class MPI_PostprocTest(rfm.RunOnlyRegressionTest):
         self.num_tasks_per_node = 1
         self.num_tasks = 1
         self.executable = 'echo 0'
-        # self.depends_on('ComputeTest_1')
-        self.depends_on('MPI_ComputeTest_2')
         self.sanity_patterns = sn.assert_found(r'^\d+', self.stdout)
+        # construct list of dependencies:
+        testnames = [ f'MPI_ComputeTest_{step}' for step in steps]
+        for test in testnames:
+            self.depends_on(test)
+
 
     @rfm.require_deps
     def collect_logs(self, MPI_ComputeTest):
