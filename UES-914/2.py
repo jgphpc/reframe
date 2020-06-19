@@ -42,8 +42,11 @@ class MPI_PostprocTest(rfm.RunOnlyRegressionTest):
         self.sanity_patterns = sn.assert_found(r'^\d+', self.stdout)
         # construct list of dependencies:
         # self.testnames = [f'compute_{step}steps' for step in steps]
-        self.testnames = [[f'compute_{mp}mpi_{step}steps' for step in steps] for mp in mpi_tasks]
-        self.testnames = self.testnames[0] + self.testnames[1]
+        self.testnames = [f'compute_{mp}mpi_{step}steps' for step in steps for mp in mpi_tasks]
+        # ---
+        #ok self.testnames = [[f'compute_{mp}mpi_{step}steps' for step in steps] for mp in mpi_tasks]
+        #ok self.testnames = self.testnames[0] + self.testnames[1]
+        # ---
         for test in self.testnames:
             self.depends_on(test)
 
